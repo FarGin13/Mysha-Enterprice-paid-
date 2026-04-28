@@ -1,0 +1,152 @@
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+
+/* Promo card hover effect */
+
+.promo-card:hover img {
+    transform: scale(1.05);
+}
+
+
+/* Tab button styles */
+
+.tab-btn {
+    color: #868e96;
+    background: transparent;
+}
+
+.tab-btn.active {
+    color: #ffffff;
+    background: #f97316;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+
+.tab-btn:not(.active):hover {
+    color: #343a40;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+
+/* Product card hover */
+
+.product-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Category card hover */
+
+.category-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+
+/* Promo card hover */
+
+.promo-card {
+    transition: transform 0.3s ease;
+}
+
+.promo-card:hover {
+    transform: translateY(-2px);
+}
+
+
+/* Brand card hover */
+
+.brand-card {
+    transition: all 0.3s ease;
+}
+
+.brand-card:hover {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.brand-card:hover .brand-name {
+    color: #f97316;
+}
+
+
+/* Review card hover */
+
+.review-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+
+/* Smooth body scroll */
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+/* Focus visible styles */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+}
+
+
+/* Quick add button */
+
+.quick-add-btn {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.2s ease;
+}
+
+.product-card:hover .quick-add-btn {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+/* Discount badge pulse */
+
+@keyframes pulse-badge {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.85;
+    }
+}
+
+.discount-badge {
+    animation: pulse-badge 2s ease-in-out infinite;
+}
+
+
+/* Hero slide content animation */
+
+.hero-slide .relative {
+    transition: opacity 0.5s ease 0.2s;
+}

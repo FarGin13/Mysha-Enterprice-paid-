@@ -156,17 +156,9 @@ function initRenders() {
   const catGrid = document.getElementById('categoryGrid');
   if (catGrid) catGrid.innerHTML = categories.map(renderCategoryCard).join('');
 
-  // New Trends
-  const trendsGrid = document.getElementById('newTrendsGrid');
-  if (trendsGrid) trendsGrid.innerHTML = products.trends.map(renderProductCard).join('');
-
-  // Featured Products (default: deals)
-  const featuredGrid = document.getElementById('featuredProductsGrid');
-  if (featuredGrid) featuredGrid.innerHTML = products.deals.map(renderProductCard).join('');
-
   // New Arrival
   const arrivalGrid = document.getElementById('newArrivalGrid');
-  if (arrivalGrid) arrivalGrid.innerHTML = products.arrival.map(renderProductCard).join('');
+ arrivalGrid.innerHTML = products.arrival.slice(0, 5).map(renderProductCard).join('');
 
   // Brands
   const brandsGridEl = document.getElementById('brandsGrid');
@@ -245,7 +237,7 @@ function initTabs() {
 
       const tab = btn.dataset.tab;
       const data = tab === 'deals' ? products.deals : products.selling;
-      featuredGrid.innerHTML = data.map(renderProductCard).join('');
+   featuredGrid.innerHTML = data.slice(0, 5).map(renderProductCard).join('');
       lucide.createIcons();
     });
   });

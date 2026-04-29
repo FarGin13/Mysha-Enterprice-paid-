@@ -108,12 +108,16 @@ function renderProductCard(product) {
         </div>
         <h3 class="text-sm font-semibold text-dark-800 mb-2 leading-snug line-clamp-2 min-h-[2.5rem]">${product.name}</h3>
         <div class="flex items-center gap-2">
-          <span class="text-base font-bold text-dark-900">$${product.price}</span>
-          ${product.oldPrice ? `<span class="text-sm text-dark-400 line-through">$${product.oldPrice}</span>` : ''}
+          <span class="text-base font-bold text-dark-900">${formatPriceBDT(product.price)}</span>
+${product.oldPrice ? `<span class="text-sm text-dark-400 line-through">${formatPriceBDT(product.oldPrice)}</span>` : ''}
         </div>
       </div>
     </div>
   `;
+}
+
+function formatPriceBDT(price) {
+  return '৳ ' + Math.round(price).toLocaleString('en-BD');
 }
 
 function renderCategoryCard(cat) {
@@ -155,6 +159,12 @@ function initRenders() {
   // Categories
   const catGrid = document.getElementById('categoryGrid');
   if (catGrid) catGrid.innerHTML = categories.map(renderCategoryCard).join('');
+
+  // Featured Products (DEFAULT = Best Deals)
+const featuredGrid = document.getElementById('featuredProductsGrid');
+if (featuredGrid) {
+  featuredGrid.innerHTML = products.deals.slice(0, 5).map(renderProductCard).join('');
+}
 
   // New Arrival
   const arrivalGrid = document.getElementById('newArrivalGrid');
@@ -237,7 +247,7 @@ function initTabs() {
 
       const tab = btn.dataset.tab;
       const data = tab === 'deals' ? products.deals : products.selling;
-   featuredGrid.innerHTML = data.slice(0, 5).map(renderProductCard).join('');
+     featuredGrid.innerHTML = data.slice(0, 5).map(renderProductCard).join('');
       lucide.createIcons();
     });
   });

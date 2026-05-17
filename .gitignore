@@ -1,0 +1,23 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# Replit
+.cache/
+.local/
+.replit-artifact/
+attached_assets/
+artifacts/mockup-sandbox/
+
+# Environment files
+.env
+*.env
+
+.env
+*.env
+dist/
+*.tsbuildinfo
+.replit-artifact/
+artifacts/mockup-sandbox/
+scripts/
+node_modules/

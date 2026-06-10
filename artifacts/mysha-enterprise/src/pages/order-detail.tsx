@@ -1,5 +1,6 @@
 import { useParams, Link } from "wouter";
 import { useGetOrder } from "@workspace/api-client-react";
+import { useQuery } from "@tanstack/react-query";
 import { formatBDT } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,22 @@ export default function OrderDetailPage() {
   const { data: order, isLoading } = useGetOrder(orderId, {
     query: { enabled: !!orderId }
   });
+
+  // All orders placed with the same phone number (previous + current).
+  const phone = (order as any)?.shippingAddress?.phone as string | undefined;
+  const { data: phoneOrdersRaw } = useQuery({
+    queryKey: ["orders-by-phone", phone],
+    enabled: !!phone,
+    queryFn: async () => {
+      const res = await fetch(
+        `/api/orders/by-phone?phone=${encodeURIComponent(phone!)}`,
+        { credentials: "include" },
+      );
+      if (!res.ok) return [] as any[];
+      return (await res.json()) as any[];
+    },
+  });
+  const orderHistory = (phoneOrdersRaw ?? []).filter((o: any) => o.id !== orderId);
 
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
@@ -185,6 +202,42 @@ export default function OrderDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Order history for this phone number (previous orders) */}
+        {orderHistory.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-xl font-bold text-gray-900 mb-1">Your previous orders</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Orders placed with phone {order.shippingAddress.phone}
+            </p>
+            <div className="space-y-3">
+              {orderHistory.map((o: any) => (
+                <div key={o.id} className="bg-white rounded-xl border p-4">
+                  <div className="flex items-center justify-between gap-4 mb-3">
+                    <div>
+                      <p className="font-semibold text-gray-900">Order #{o.id}</p>
+                      <p className="text-sm text-gray-500">
+                        {format(new Date(o.createdAt), 'MMM dd, yyyy')}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-primary">{formatBDT(o.total)}</p>
+                      <div className="mt-1">{getStatusBadge(o.status)}</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-600 space-y-1 border-t pt-3">
+                    {o.items.map((it: any, i: number) => (
+                      <div key={i} className="flex justify-between gap-2">
+                        <span className="truncate">{it.name} × {it.quantity}</span>
+                        <span className="shrink-0">{formatBDT(it.price * it.quantity)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

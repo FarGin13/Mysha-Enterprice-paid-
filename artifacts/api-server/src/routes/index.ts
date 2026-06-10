@@ -6,13 +6,11 @@ import cartRouter from "./cart";
 import ordersRouter from "./orders";
 import profileRouter from "./profile";
 import couponsRouter from "./coupons";
-import authRouter from "./auth";
 import reviewsRouter from "./reviews";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
-router.use(authRouter);
 router.use(productsRouter);
 router.use(categoriesRouter);
 router.use(cartRouter);

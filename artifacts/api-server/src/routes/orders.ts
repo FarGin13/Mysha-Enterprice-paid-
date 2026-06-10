@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { db } from "@workspace/db";
 import { ordersTable, cartItemsTable } from "@workspace/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { validateBody } from "../middlewares/validate";
 import { applyCoupon } from "../lib/coupons";
 
@@ -86,6 +86,29 @@ router.post("/orders", validateBody(createOrderSchema), async (req, res) => {
   } catch (err) {
     req.log.error({ err }, "Error creating order");
     res.status(500).json({ error: "Failed to create order" });
+  }
+});
+
+// All orders for a phone number, matched on digits only (ignores spaces, +, etc.).
+// NOTE: this is an OPEN lookup — anyone with the number can see these orders.
+// Add SMS-code verification before real launch. Must be registered BEFORE
+// /orders/:id so "by-phone" isn't parsed as an order id.
+router.get("/orders/by-phone", async (req, res) => {
+  try {
+    const digits = String(req.query.phone ?? "").replace(/\D/g, "");
+    if (digits.length < 6) {
+      return void res.status(400).json({ error: "A valid phone number is required" });
+    }
+    const rows = await db
+      .select()
+      .from(ordersTable)
+      .where(
+        sql`regexp_replace(${ordersTable.shippingAddress} ->> 'phone', '\\D', '', 'g') = ${digits}`,
+      );
+    res.json(rows.map(formatOrder).reverse());
+  } catch (err) {
+    req.log.error({ err }, "Error fetching orders by phone");
+    res.status(500).json({ error: "Failed to fetch orders" });
   }
 });
 

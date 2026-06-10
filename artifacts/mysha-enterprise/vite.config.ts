@@ -33,6 +33,21 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      onwarn(warning, warn) {
+        // shadcn/ui files ship with a Next.js "use client" directive that Vite
+        // doesn't need. Ignore that harmless warning (and the sourcemap noise it
+        // produces) so the build log stays clean.
+        if (warning.code === "MODULE_LEVEL_DIRECTIVE") return;
+        if (
+          typeof warning.message === "string" &&
+          warning.message.includes("use client")
+        ) {
+          return;
+        }
+        warn(warning);
+      },
+    },
   },
 
   server: {

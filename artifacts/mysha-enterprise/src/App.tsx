@@ -12,17 +12,11 @@ import CartPage from "@/pages/cart";
 import CheckoutPage from "@/pages/checkout";
 import OrdersPage from "@/pages/orders";
 import OrderDetailPage from "@/pages/order-detail";
-import ProfilePage from "@/pages/profile";
 import TrackPage from "@/pages/track";
 import WishlistPage from "@/pages/wishlist";
 import AboutPage from "@/pages/about";
 import ContactPage from "@/pages/contact";
 import NotFound from "@/pages/not-found";
-import SignInPage from "@/pages/signin";
-import SignUpPage from "@/pages/signup";
-import VerifyEmailPage from "@/pages/verify-email";
-import ForgotPasswordPage from "@/pages/forgot-password";
-import ResetPasswordPage from "@/pages/reset-password";
 import ComparePage from "@/pages/compare";
 
 const queryClient = new QueryClient({
@@ -46,16 +40,10 @@ function Router() {
         <Route path="/checkout" component={CheckoutPage} />
         <Route path="/orders" component={OrdersPage} />
         <Route path="/orders/:id" component={OrderDetailPage} />
-        <Route path="/profile" component={ProfilePage} />
         <Route path="/track" component={TrackPage} />
         <Route path="/wishlist" component={WishlistPage} />
         <Route path="/about" component={AboutPage} />
         <Route path="/contact" component={ContactPage} />
-        <Route path="/signin" component={SignInPage} />
-        <Route path="/signup" component={SignUpPage} />
-        <Route path="/verify-email" component={VerifyEmailPage} />
-        <Route path="/forgot-password" component={ForgotPasswordPage} />
-        <Route path="/reset-password" component={ResetPasswordPage} />
         <Route path="/compare" component={ComparePage} />
         <Route component={NotFound} />
       </Switch>

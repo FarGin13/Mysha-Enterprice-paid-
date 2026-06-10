@@ -106,9 +106,6 @@ interface CouponResult {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-// How many seconds to show the success screen before redirecting to home
-const REDIRECT_DELAY_SECONDS = 2;
-
 export default function CheckoutPage() {
   const [, setLocation] = useLocation();
   const { data: cart, isLoading } = useGetCart();
@@ -117,7 +114,6 @@ export default function CheckoutPage() {
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
-  const [countdown, setCountdown] = useState(REDIRECT_DELAY_SECONDS);
   const [couponInput, setCouponInput] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState<CouponResult | null>(null);
@@ -135,35 +131,6 @@ export default function CheckoutPage() {
       paymentMethod: "Cash on Delivery",
     },
   });
-
-  // ── Auto-redirect to home after successful order ──────────────────────────
-  useEffect(() => {
-    if (!isSuccess) return;
-
-    // Start countdown display
-    const countdownTimer = setInterval(() => {
-      setCountdown((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
-    // Hard redirect after delay — use window.location.replace as a failsafe
-    // so the back button won't return to the checkout/success screen.
-    const redirectTimer = setTimeout(() => {
-      clearInterval(countdownTimer);
-      setLocation("/");
-      // Failsafe: if wouter setLocation doesn't navigate (e.g. base-path mismatch),
-      // window.location.replace forces a full navigation to the homepage.
-      setTimeout(() => {
-        if (window.location.pathname !== "/") {
-          window.location.replace("/");
-        }
-      }, 150);
-    }, REDIRECT_DELAY_SECONDS * 1000);
-
-    return () => {
-      clearInterval(countdownTimer);
-      clearTimeout(redirectTimer);
-    };
-  }, [isSuccess, setLocation]);
 
   // Safe extraction
   const cartItems    = extractCartItems(cart);
@@ -304,15 +271,6 @@ export default function CheckoutPage() {
             <span className="font-bold text-gray-800">#{orderId}</span> is
             confirmed and being processed.
           </p>
-
-          {/* Countdown notice */}
-          <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-xl border border-primary/20 mb-6 text-left">
-            <Truck size={20} className="text-primary flex-shrink-0" />
-            <p className="text-sm text-primary">
-              Returning to homepage in{" "}
-              <strong>{countdown} second{countdown !== 1 ? "s" : ""}</strong>…
-            </p>
-          </div>
 
           <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100 mb-8 text-left">
             <Truck size={20} className="text-blue-500 flex-shrink-0" />

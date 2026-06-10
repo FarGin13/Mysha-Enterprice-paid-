@@ -8,7 +8,6 @@ import { useCompare } from "@/hooks/useCompare";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatBDT } from "@/lib/format";
-import { useAuth } from "@/hooks/useAuth";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
@@ -22,25 +21,12 @@ function useDebounce<T>(value: T, delay: number): T {
 export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: cart } = useGetCart();
   const { count: wishlistCount } = useWishlist();
   const { items: compareItems } = useCompare();
-  const { user, signOut } = useAuth();
   const searchRef = useRef<HTMLDivElement>(null);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-        setUserMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const debouncedQuery = useDebounce(searchQuery, 300);
 
@@ -178,50 +164,10 @@ export function Header() {
 
         {/* Action Icons */}
         <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-          {/* User Account Menu */}
-          <div className="relative hidden sm:block" ref={userMenuRef}>
-            {user ? (
-              <button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-1.5 p-2 text-gray-300 hover:text-primary transition-colors rounded-lg hover:bg-gray-800"
-                title="My Account"
-              >
-                <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <ChevronDown size={14} className={`transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
-              </button>
-            ) : (
-              <Link href="/signin" className="flex items-center gap-1.5 p-2 text-gray-300 hover:text-primary transition-colors" title="Sign In">
-                <LogIn size={22} />
-              </Link>
-            )}
-
-            {userMenuOpen && user && (
-              <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50">
-                <div className="px-4 py-3 border-b bg-gray-50">
-                  <p className="font-semibold text-gray-900 text-sm truncate">{user.name}</p>
-                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                </div>
-                <div className="py-1">
-                  <Link href="/profile" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-primary transition-colors">
-                    <User size={15} /> My Profile
-                  </Link>
-                  <Link href="/orders" onClick={() => setUserMenuOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-primary transition-colors">
-                    <Package size={15} /> My Orders
-                  </Link>
-                </div>
-                <div className="border-t py-1">
-                  <button
-                    onClick={async () => { setUserMenuOpen(false); await signOut(); setLocation("/"); }}
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
-                  >
-                    <LogOut size={15} /> Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Orders (guest, session-based) */}
+          <Link href="/orders" className="p-2 text-gray-300 hover:text-primary transition-colors hidden sm:flex" title="My Orders">
+            <Package size={22} />
+          </Link>
 
           <Link href="/wishlist" className="p-2 text-gray-300 hover:text-primary transition-colors relative hidden sm:flex" title="Wishlist">
             <Heart size={22} />
@@ -271,29 +217,6 @@ export function Header() {
             </button>
           </form>
           <div className="flex flex-col gap-2">
-            {user ? (
-              <>
-                <div className="flex items-center gap-3 p-3 rounded bg-gray-800 text-white">
-                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">{user.name.charAt(0).toUpperCase()}</div>
-                  <div>
-                    <p className="font-semibold text-sm">{user.name}</p>
-                    <p className="text-xs text-gray-400">{user.email}</p>
-                  </div>
-                </div>
-                <Link href="/profile" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded bg-gray-800 text-white hover:bg-gray-700 transition-colors">
-                  <User size={18} /> My Profile
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link href="/signin" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded bg-primary text-white hover:bg-orange-600 transition-colors font-semibold">
-                  <LogIn size={18} /> Sign In
-                </Link>
-                <Link href="/signup" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded bg-gray-800 text-white hover:bg-gray-700 transition-colors">
-                  <User size={18} /> Create Account
-                </Link>
-              </>
-            )}
             <Link href="/wishlist" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded bg-gray-800 text-white hover:bg-gray-700 transition-colors">
               <Heart size={18} /> Wishlist {wishlistCount > 0 && <span className="ml-auto bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{wishlistCount}</span>}
             </Link>
@@ -306,14 +229,6 @@ export function Header() {
             <Link href="/track" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded bg-gray-800 text-white hover:bg-gray-700 transition-colors">
               <ShoppingCart size={18} /> Track Order
             </Link>
-            {user && (
-              <button
-                onClick={async () => { setMobileMenuOpen(false); await signOut(); setLocation("/"); }}
-                className="flex items-center gap-3 p-3 rounded bg-gray-800 text-red-400 hover:bg-gray-700 transition-colors w-full text-left"
-              >
-                <LogOut size={18} /> Sign Out
-              </button>
-            )}
           </div>
         </div>
       )}

@@ -54,31 +54,34 @@ app.use(helmet());
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 // credentials:true is required so the browser sends the session cookie.
-// In production only origins on ALLOWED_ORIGINS (comma-separated env var) may
-// make credentialed cross-origin calls. In development any localhost origin is
-// allowed so the Vite dev proxy works.
+// Allowed: (1) same-origin requests — the frontend and API share a host on
+// Vercel, so the site always trusts itself with no configuration; (2) any
+// localhost origin in development (Vite dev proxy); (3) any extra origins listed
+// in the ALLOWED_ORIGINS env var (comma-separated) for separate frontends.
 const allowedOrigins = (process.env["ALLOWED_ORIGINS"] ?? "")
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
 
 app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Same-origin / server-to-server / curl requests have no Origin header.
-      if (!origin) return callback(null, true);
+  cors((req, callback) => {
+    const origin = req.headers.origin;
+    const host = req.headers.host;
 
-      if (!isProduction) {
-        if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
-          return callback(null, true);
-        }
-      }
+    const isAllowed =
+      // No Origin header (same-origin GET, server-to-server, curl, health checks)
+      !origin ||
+      // Same-origin: the request's Origin matches the host it was sent to
+      origin === `https://${host}` ||
+      origin === `http://${host}` ||
+      // Localhost in development
+      (!isProduction && (origin.includes("localhost") || origin.includes("127.0.0.1"))) ||
+      // Explicitly allow-listed extra origins
+      allowedOrigins.includes(origin);
 
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true, // ← required to send Set-Cookie back to browser
+    // Never throw — just withhold CORS headers for disallowed origins so the
+    // browser blocks them, instead of returning a 500.
+    callback(null, { origin: isAllowed, credentials: true });
   })
 );
 

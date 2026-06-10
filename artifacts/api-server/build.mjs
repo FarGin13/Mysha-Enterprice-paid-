@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { build as esbuild } from "esbuild";
 import esbuildPluginPino from "esbuild-plugin-pino";
-import { rm } from "node:fs/promises";
+import { rm, copyFile } from "node:fs/promises";
 
 // Plugins (e.g. 'esbuild-plugin-pino') may use `require` to resolve dependencies
 globalThis.require = createRequire(import.meta.url);
@@ -118,6 +118,17 @@ globalThis.__dirname = __bannerPath.dirname(globalThis.__filename);
     `,
     },
   });
+
+  // connect-pg-simple loads "table.sql" at runtime relative to the bundle to
+  // create its session table. esbuild does not copy non-JS assets, so copy it
+  // into dist explicitly — otherwise the session store throws ENOENT on every
+  // request and sessions (cart, login) silently fail.
+  const pgSimpleDir = path.dirname(globalThis.require.resolve("connect-pg-simple"));
+  await copyFile(
+    path.join(pgSimpleDir, "table.sql"),
+    path.resolve(distDir, "table.sql"),
+  );
+  console.log("Copied connect-pg-simple/table.sql into dist");
 }
 
 buildAll().catch((err) => {

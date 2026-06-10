@@ -1,3 +1,5 @@
+import path from "node:path";
+import fs from "node:fs";
 import express, { type Express, type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -136,10 +138,37 @@ app.use("/api", globalLimiter);
 app.use("/api/auth", authLimiter);
 app.use("/api", router);
 
-// ─── 404 ─────────────────────────────────────────────────────────────────────
-app.use((_req: Request, res: Response) => {
+// Unmatched API routes → JSON 404.
+app.use("/api", (_req: Request, res: Response) => {
   res.status(404).json({ error: "Not found" });
 });
+
+// ─── Serve the built frontend (single-origin deploy) ──────────────────────────
+// When the frontend has been built (e.g. on Render), this same server serves
+// the storefront so the API and site share one origin (sessions/cookies work,
+// no CORS). In local dev the build doesn't exist, so this is skipped and Vite
+// serves the frontend separately.
+const clientDir =
+  process.env["CLIENT_DIR"] ||
+  path.resolve(process.cwd(), "artifacts/mysha-enterprise/dist/public");
+const indexHtml = path.join(clientDir, "index.html");
+const serveClient = fs.existsSync(indexHtml);
+
+if (serveClient) {
+  app.use(express.static(clientDir));
+  // SPA fallback: any non-API GET returns index.html so client-side routing works.
+  app.get(/.*/, (_req: Request, res: Response, next: NextFunction) => {
+    res.sendFile(indexHtml, (err) => {
+      if (err) next(err);
+    });
+  });
+  logger.info({ clientDir }, "Serving built frontend");
+} else {
+  // No frontend build present (local dev / API-only): plain 404.
+  app.use((_req: Request, res: Response) => {
+    res.status(404).json({ error: "Not found" });
+  });
+}
 
 // ─── Central error handler ──────────────────────────────────────────────────────
 // Express 5 forwards rejected async handlers here. We log full detail server

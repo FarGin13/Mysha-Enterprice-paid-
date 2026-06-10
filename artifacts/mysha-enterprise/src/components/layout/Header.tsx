@@ -164,11 +164,6 @@ export function Header() {
 
         {/* Action Icons */}
         <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-          {/* Orders (guest, session-based) */}
-          <Link href="/orders" className="p-2 text-gray-300 hover:text-primary transition-colors hidden sm:flex" title="My Orders">
-            <Package size={22} />
-          </Link>
-
           <Link href="/wishlist" className="p-2 text-gray-300 hover:text-primary transition-colors relative hidden sm:flex" title="Wishlist">
             <Heart size={22} />
             {wishlistCount > 0 && (
@@ -222,9 +217,6 @@ export function Header() {
             </Link>
             <Link href="/compare" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded bg-gray-800 text-white hover:bg-gray-700 transition-colors">
               <BarChart2 size={18} /> Compare {compareItems.length > 0 && <span className="ml-auto bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">{compareItems.length}</span>}
-            </Link>
-            <Link href="/orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded bg-gray-800 text-white hover:bg-gray-700 transition-colors">
-              <Package size={18} /> My Orders
             </Link>
             <Link href="/track" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 p-3 rounded bg-gray-800 text-white hover:bg-gray-700 transition-colors">
               <ShoppingCart size={18} /> Track Order

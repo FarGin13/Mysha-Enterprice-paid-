@@ -10,7 +10,6 @@ import ProductPage from "@/pages/product";
 import SearchPage from "@/pages/search";
 import CartPage from "@/pages/cart";
 import CheckoutPage from "@/pages/checkout";
-import OrdersPage from "@/pages/orders";
 import OrderDetailPage from "@/pages/order-detail";
 import TrackPage from "@/pages/track";
 import WishlistPage from "@/pages/wishlist";

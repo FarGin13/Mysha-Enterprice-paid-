@@ -360,7 +360,9 @@ export async function customFetch<T = unknown>(
 
   const requestInfo = { method, url: resolveUrl(input) };
 
-  const response = await fetch(input, { ...init, method, headers });
+  // Always send the session cookie so the cart/orders/profile stay tied to the
+  // visitor's session (defaults to same-origin; explicit for safety).
+  const response = await fetch(input, { ...init, method, headers, credentials: "include" });
 
   if (!response.ok) {
     const errorData = await parseErrorBody(response, method);

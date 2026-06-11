@@ -176,9 +176,24 @@ const indexHtml = path.join(clientDir, "index.html");
 const serveClient = fs.existsSync(indexHtml);
 
 if (serveClient) {
-  app.use(express.static(clientDir));
+  app.use(
+    express.static(clientDir, {
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith("index.html")) {
+          // Never cache the HTML, so the browser always loads the current build's
+          // script references (prevents blank pages from a stale cached page
+          // pointing at a JS file that no longer exists after a redeploy).
+          res.setHeader("Cache-Control", "no-cache");
+        } else {
+          // Hashed asset files are immutable — safe to cache for a long time.
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
+    }),
+  );
   // SPA fallback: any non-API GET returns index.html so client-side routing works.
   app.get(/.*/, (_req: Request, res: Response, next: NextFunction) => {
+    res.setHeader("Cache-Control", "no-cache");
     res.sendFile(indexHtml, (err) => {
       if (err) next(err);
     });

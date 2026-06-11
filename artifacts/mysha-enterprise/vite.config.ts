@@ -33,6 +33,9 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Broaden browser support so older phones and in-app browsers (Facebook,
+    // Instagram, etc.) can run the bundle instead of showing a blank page.
+    target: ["es2018", "chrome79", "safari13", "firefox72", "edge79"],
     rollupOptions: {
       onwarn(warning, warn) {
         // shadcn/ui files ship with a Next.js "use client" directive that Vite
